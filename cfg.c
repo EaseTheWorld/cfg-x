@@ -51,8 +51,10 @@ static void set_args(T& name, const char* val, const char* val2) {
 
 cfg::cfg() {
 #define INIT_X(type, name, ...) set_args(name, __VA_ARGS__);
-	ITEMS(INIT_X)
+#define INIT_X2(type1, name1, defVal1, type2, name2, defVal2) INIT_X(type1, name1, defVal1) INIT_X(type2, name2, defVal2)
+	ITEMS(INIT_X, INIT_X2)
 #undef INIT_X
+#undef INIT_X2
 }
 
 cfg::~cfg() {}
@@ -71,8 +73,14 @@ bool cfg::loadFile(const char* filename) {
 			ss>>name; \
 			continue; \
 		}
-		ITEMS(SET_X)
+#define SET_X2(type1, name1, defVal1, type2, name2, defVal2) \
+		if (!key.compare(#name1)) { \
+			ss>>name1>>name2; \
+			continue; \
+		}
+		ITEMS(SET_X, SET_X2)
 #undef SET_X
+#undef SET_X2
 	}
 	is.close();
 	return true;
